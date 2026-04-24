@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\Admin\VehiculoController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -22,9 +23,13 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
     Route::put('/usuarios/{id}',           [UsuarioController::class, 'update'])->name('usuarios.update');
     Route::delete('/usuarios/{id}',        [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
 
-    Route::get('/vehiculos',             fn() => view('home'))->name('vehiculos.index');
-    Route::get('/vehiculos/crear',       fn() => view('home'))->name('vehiculos.create');
-    Route::get('/vehiculos/{id}/editar', fn() => view('home'))->name('vehiculos.edit');
+    // Vehículos
+    Route::get('/vehiculos',             [VehiculoController::class, 'index'])->name('vehiculos.index');
+    Route::get('/vehiculos/crear',       [VehiculoController::class, 'create'])->name('vehiculos.create');
+    Route::post('/vehiculos',            [VehiculoController::class, 'store'])->name('vehiculos.store');
+    Route::get('/vehiculos/{id}/editar', [VehiculoController::class, 'edit'])->name('vehiculos.edit');
+    Route::put('/vehiculos/{id}',        [VehiculoController::class, 'update'])->name('vehiculos.update');
+    Route::delete('/vehiculos/{id}',     [VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
 
     Route::get('/mantenimientos',             fn() => view('home'))->name('mantenimientos.index');
     Route::get('/mantenimientos/crear',       fn() => view('home'))->name('mantenimientos.create');
