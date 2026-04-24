@@ -32,9 +32,14 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
     Route::put('/vehiculos/{id}',        [VehiculoController::class, 'update'])->name('vehiculos.update');
     Route::delete('/vehiculos/{id}',     [VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
 
-    Route::get('/mantenimientos',             fn() => view('home'))->name('mantenimientos.index');
-    Route::get('/mantenimientos/crear',       fn() => view('home'))->name('mantenimientos.create');
-    Route::get('/mantenimientos/{id}/editar', fn() => view('home'))->name('mantenimientos.edit');
+    // Mantenimientos
+    Route::get('/mantenimientos',              [MantenimientoController::class, 'index'])->name('mantenimientos.index');
+    Route::get('/mantenimientos/crear',        [MantenimientoController::class, 'create'])->name('mantenimientos.create');
+    Route::post('/mantenimientos',             [MantenimientoController::class, 'store'])->name('mantenimientos.store');
+    Route::get('/mantenimientos/{id}/editar',  [MantenimientoController::class, 'edit'])->name('mantenimientos.edit');
+    Route::put('/mantenimientos/{id}',         [MantenimientoController::class, 'update'])->name('mantenimientos.update');
+    Route::patch('/mantenimientos/{id}/cerrar',[MantenimientoController::class, 'cerrar'])->name('mantenimientos.cerrar');
+    Route::delete('/mantenimientos/{id}',      [MantenimientoController::class, 'destroy'])->name('mantenimientos.destroy');
 
     Route::get('/reportes/disponibilidad',   fn() => view('home'))->name('reportes.disponibilidad');
     Route::get('/reportes/uso',              fn() => view('home'))->name('reportes.uso');
