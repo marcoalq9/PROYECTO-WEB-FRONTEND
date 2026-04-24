@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\UsuarioController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -13,9 +14,13 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(function () {
     Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
 
-    Route::get('/usuarios',             fn() => view('home'))->name('usuarios.index');
-    Route::get('/usuarios/crear',       fn() => view('home'))->name('usuarios.create');
-    Route::get('/usuarios/{id}/editar', fn() => view('home'))->name('usuarios.edit');
+    // Usuarios
+    Route::get('/usuarios',                [UsuarioController::class, 'index'])->name('usuarios.index');
+    Route::get('/usuarios/crear',          [UsuarioController::class, 'create'])->name('usuarios.create');
+    Route::post('/usuarios',               [UsuarioController::class, 'store'])->name('usuarios.store');
+    Route::get('/usuarios/{id}/editar',    [UsuarioController::class, 'edit'])->name('usuarios.edit');
+    Route::put('/usuarios/{id}',           [UsuarioController::class, 'update'])->name('usuarios.update');
+    Route::delete('/usuarios/{id}',        [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
 
     Route::get('/vehiculos',             fn() => view('home'))->name('vehiculos.index');
     Route::get('/vehiculos/crear',       fn() => view('home'))->name('vehiculos.create');
