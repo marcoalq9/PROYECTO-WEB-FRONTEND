@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\VehiculoController;
 use App\Http\Controllers\Admin\MantenimientoController;
 use App\Http\Controllers\Operador\SolicitudController;
 use App\Http\Controllers\Operador\AsignacionDirectaController;
+use App\Http\Controllers\Operador\RutaController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -65,9 +66,13 @@ Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->gro
     Route::get('/viajes',                   fn() => view('home'))->name('viajes.index');
     Route::get('/viajes/crear',             fn() => view('home'))->name('viajes.create');
 
-    Route::get('/rutas',                    fn() => view('home'))->name('rutas.index');
-    Route::get('/rutas/crear',              fn() => view('home'))->name('rutas.create');
-    Route::get('/rutas/{id}/editar',        fn() => view('home'))->name('rutas.edit');
+    // Rutas
+    Route::get('/rutas',             [RutaController::class, 'index'])->name('rutas.index');
+    Route::get('/rutas/crear',       [RutaController::class, 'create'])->name('rutas.create');
+    Route::post('/rutas',            [RutaController::class, 'store'])->name('rutas.store');
+    Route::get('/rutas/{id}/editar', [RutaController::class, 'edit'])->name('rutas.edit');
+    Route::put('/rutas/{id}',        [RutaController::class, 'update'])->name('rutas.update');
+    Route::delete('/rutas/{id}',     [RutaController::class, 'destroy'])->name('rutas.destroy');
 
     Route::get('/mantenimientos',             fn() => view('home'))->name('mantenimientos.index');
     Route::get('/mantenimientos/crear',       fn() => view('home'))->name('mantenimientos.create');
