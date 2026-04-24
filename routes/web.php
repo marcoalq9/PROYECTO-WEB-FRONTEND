@@ -9,6 +9,9 @@ use App\Http\Controllers\Operador\SolicitudController;
 use App\Http\Controllers\Operador\AsignacionDirectaController;
 use App\Http\Controllers\Operador\RutaController;
 use App\Http\Controllers\Operador\ViajeController;
+use App\Http\Controllers\Chofer\VehiculoController as ChoferVehiculoController;
+use App\Http\Controllers\Chofer\SolicitudController as ChoferSolicitudController;
+use App\Http\Controllers\Chofer\HistorialController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -87,11 +90,16 @@ Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->gro
 Route::prefix('chofer')->name('chofer.')->middleware('sesion:chofer')->group(function () {
     Route::get('/dashboard', fn() => view('chofer.dashboard'))->name('dashboard');
 
-    Route::get('/vehiculos',         fn() => view('home'))->name('vehiculos.index');
-    Route::get('/vehiculos/{id}',    fn() => view('home'))->name('vehiculos.show');
+    // Vehículos disponibles
+    Route::get('/vehiculos',         [ChoferVehiculoController::class, 'index'])->name('vehiculos.index');
+    Route::get('/vehiculos/{id}',    [ChoferVehiculoController::class, 'show'])->name('vehiculos.show');
 
-    Route::get('/solicitudes',       fn() => view('home'))->name('solicitudes.index');
-    Route::get('/solicitudes/crear', fn() => view('home'))->name('solicitudes.create');
+    // Solicitudes
+    Route::get('/solicitudes',                    [ChoferSolicitudController::class, 'index'])->name('solicitudes.index');
+    Route::get('/solicitudes/crear',              [ChoferSolicitudController::class, 'create'])->name('solicitudes.create');
+    Route::post('/solicitudes',                   [ChoferSolicitudController::class, 'store'])->name('solicitudes.store');
+    Route::patch('/solicitudes/{id}/cancelar',    [ChoferSolicitudController::class, 'cancelar'])->name('solicitudes.cancelar');
 
-    Route::get('/historial',         fn() => view('home'))->name('historial');
+    // Historial
+    Route::get('/historial', [HistorialController::class, 'index'])->name('historial');
 });
