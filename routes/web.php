@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\MantenimientoController;
 use App\Http\Controllers\Operador\SolicitudController;
 use App\Http\Controllers\Operador\AsignacionDirectaController;
 use App\Http\Controllers\Operador\RutaController;
+use App\Http\Controllers\Operador\ViajeController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -63,8 +64,11 @@ Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->gro
     Route::get('/asignacion-directa',         [AsignacionDirectaController::class, 'create'])->name('asignacion-directa.create');
     Route::post('/asignacion-directa',        [AsignacionDirectaController::class, 'store'])->name('asignacion-directa.store');
 
-    Route::get('/viajes',                   fn() => view('home'))->name('viajes.index');
-    Route::get('/viajes/crear',             fn() => view('home'))->name('viajes.create');
+    // Viajes
+    Route::get('/viajes',                      [ViajeController::class, 'index'])->name('viajes.index');
+    Route::get('/viajes/crear',                [ViajeController::class, 'create'])->name('viajes.create');
+    Route::post('/viajes',                     [ViajeController::class, 'store'])->name('viajes.store');
+    Route::patch('/viajes/{id}/retorno',       [ViajeController::class, 'registrarRetorno'])->name('viajes.retorno');
 
     // Rutas
     Route::get('/rutas',             [RutaController::class, 'index'])->name('rutas.index');
