@@ -11,7 +11,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ==================== ADMIN ====================
 Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(function () {
-    Route::get('/dashboard', fn() => view('home'))->name('dashboard');
+    Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
 
     Route::get('/usuarios',             fn() => view('home'))->name('usuarios.index');
     Route::get('/usuarios/crear',       fn() => view('home'))->name('usuarios.create');
@@ -32,7 +32,7 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
 
 // ==================== OPERADOR ====================
 Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->group(function () {
-    Route::get('/dashboard', fn() => view('home'))->name('dashboard');
+    Route::get('/dashboard', fn() => view('operador.dashboard'))->name('dashboard');
 
     Route::get('/solicitudes',              fn() => view('home'))->name('solicitudes.index');
     Route::get('/solicitudes/{id}',         fn() => view('home'))->name('solicitudes.show');
@@ -53,7 +53,7 @@ Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->gro
 
 // ==================== CHOFER ====================
 Route::prefix('chofer')->name('chofer.')->middleware('sesion:chofer')->group(function () {
-    Route::get('/dashboard', fn() => view('home'))->name('dashboard');
+    Route::get('/dashboard', fn() => view('chofer.dashboard'))->name('dashboard');
 
     Route::get('/vehiculos',         fn() => view('home'))->name('vehiculos.index');
     Route::get('/vehiculos/{id}',    fn() => view('home'))->name('vehiculos.show');
