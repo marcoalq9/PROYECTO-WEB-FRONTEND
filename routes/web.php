@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\VehiculoController;
 use App\Http\Controllers\Admin\MantenimientoController;
+use App\Http\Controllers\Operador\SolicitudController;
+use App\Http\Controllers\Operador\AsignacionDirectaController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -50,10 +52,15 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
 Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->group(function () {
     Route::get('/dashboard', fn() => view('operador.dashboard'))->name('dashboard');
 
-    Route::get('/solicitudes',              fn() => view('home'))->name('solicitudes.index');
-    Route::get('/solicitudes/{id}',         fn() => view('home'))->name('solicitudes.show');
+    // Solicitudes
+    Route::get('/solicitudes',                [SolicitudController::class, 'index'])->name('solicitudes.index');
+    Route::get('/solicitudes/{id}',           [SolicitudController::class, 'show'])->name('solicitudes.show');
+    Route::patch('/solicitudes/{id}/aprobar', [SolicitudController::class, 'aprobar'])->name('solicitudes.aprobar');
+    Route::patch('/solicitudes/{id}/rechazar',[SolicitudController::class, 'rechazar'])->name('solicitudes.rechazar');
 
-    Route::get('/asignacion-directa',       fn() => view('home'))->name('asignacion-directa.create');
+    // Asignación directa
+    Route::get('/asignacion-directa',         [AsignacionDirectaController::class, 'create'])->name('asignacion-directa.create');
+    Route::post('/asignacion-directa',        [AsignacionDirectaController::class, 'store'])->name('asignacion-directa.store');
 
     Route::get('/viajes',                   fn() => view('home'))->name('viajes.index');
     Route::get('/viajes/crear',             fn() => view('home'))->name('viajes.create');
