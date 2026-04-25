@@ -5,6 +5,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\VehiculoController;
 use App\Http\Controllers\Admin\MantenimientoController;
+use App\Http\Controllers\Operador\SolicitudController;
+use App\Http\Controllers\Operador\AsignacionDirectaController;
+use App\Http\Controllers\Operador\RutaController;
+use App\Http\Controllers\Operador\ViajeController;
+use App\Http\Controllers\Chofer\VehiculoController as ChoferVehiculoController;
+use App\Http\Controllers\Chofer\SolicitudController as ChoferSolicitudController;
+use App\Http\Controllers\Chofer\HistorialController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -32,9 +39,14 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
     Route::put('/vehiculos/{id}',        [VehiculoController::class, 'update'])->name('vehiculos.update');
     Route::delete('/vehiculos/{id}',     [VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
 
-    Route::get('/mantenimientos',             fn() => view('home'))->name('mantenimientos.index');
-    Route::get('/mantenimientos/crear',       fn() => view('home'))->name('mantenimientos.create');
-    Route::get('/mantenimientos/{id}/editar', fn() => view('home'))->name('mantenimientos.edit');
+    // Mantenimientos
+    Route::get('/mantenimientos',              [MantenimientoController::class, 'index'])->name('mantenimientos.index');
+    Route::get('/mantenimientos/crear',        [MantenimientoController::class, 'create'])->name('mantenimientos.create');
+    Route::post('/mantenimientos',             [MantenimientoController::class, 'store'])->name('mantenimientos.store');
+    Route::get('/mantenimientos/{id}/editar',  [MantenimientoController::class, 'edit'])->name('mantenimientos.edit');
+    Route::put('/mantenimientos/{id}',         [MantenimientoController::class, 'update'])->name('mantenimientos.update');
+    Route::patch('/mantenimientos/{id}/cerrar',[MantenimientoController::class, 'cerrar'])->name('mantenimientos.cerrar');
+    Route::delete('/mantenimientos/{id}',      [MantenimientoController::class, 'destroy'])->name('mantenimientos.destroy');
 
     Route::get('/reportes/disponibilidad',   fn() => view('home'))->name('reportes.disponibilidad');
     Route::get('/reportes/uso',              fn() => view('home'))->name('reportes.uso');
@@ -45,17 +57,29 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
 Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->group(function () {
     Route::get('/dashboard', fn() => view('operador.dashboard'))->name('dashboard');
 
-    Route::get('/solicitudes',              fn() => view('home'))->name('solicitudes.index');
-    Route::get('/solicitudes/{id}',         fn() => view('home'))->name('solicitudes.show');
+    // Solicitudes
+    Route::get('/solicitudes',                [SolicitudController::class, 'index'])->name('solicitudes.index');
+    Route::get('/solicitudes/{id}',           [SolicitudController::class, 'show'])->name('solicitudes.show');
+    Route::patch('/solicitudes/{id}/aprobar', [SolicitudController::class, 'aprobar'])->name('solicitudes.aprobar');
+    Route::patch('/solicitudes/{id}/rechazar',[SolicitudController::class, 'rechazar'])->name('solicitudes.rechazar');
 
-    Route::get('/asignacion-directa',       fn() => view('home'))->name('asignacion-directa.create');
+    // Asignación directa
+    Route::get('/asignacion-directa',         [AsignacionDirectaController::class, 'create'])->name('asignacion-directa.create');
+    Route::post('/asignacion-directa',        [AsignacionDirectaController::class, 'store'])->name('asignacion-directa.store');
 
-    Route::get('/viajes',                   fn() => view('home'))->name('viajes.index');
-    Route::get('/viajes/crear',             fn() => view('home'))->name('viajes.create');
+    // Viajes
+    Route::get('/viajes',                      [ViajeController::class, 'index'])->name('viajes.index');
+    Route::get('/viajes/crear',                [ViajeController::class, 'create'])->name('viajes.create');
+    Route::post('/viajes',                     [ViajeController::class, 'store'])->name('viajes.store');
+    Route::patch('/viajes/{id}/retorno',       [ViajeController::class, 'registrarRetorno'])->name('viajes.retorno');
 
-    Route::get('/rutas',                    fn() => view('home'))->name('rutas.index');
-    Route::get('/rutas/crear',              fn() => view('home'))->name('rutas.create');
-    Route::get('/rutas/{id}/editar',        fn() => view('home'))->name('rutas.edit');
+    // Rutas
+    Route::get('/rutas',             [RutaController::class, 'index'])->name('rutas.index');
+    Route::get('/rutas/crear',       [RutaController::class, 'create'])->name('rutas.create');
+    Route::post('/rutas',            [RutaController::class, 'store'])->name('rutas.store');
+    Route::get('/rutas/{id}/editar', [RutaController::class, 'edit'])->name('rutas.edit');
+    Route::put('/rutas/{id}',        [RutaController::class, 'update'])->name('rutas.update');
+    Route::delete('/rutas/{id}',     [RutaController::class, 'destroy'])->name('rutas.destroy');
 
     Route::get('/mantenimientos',             fn() => view('home'))->name('mantenimientos.index');
     Route::get('/mantenimientos/crear',       fn() => view('home'))->name('mantenimientos.create');
@@ -66,11 +90,16 @@ Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->gro
 Route::prefix('chofer')->name('chofer.')->middleware('sesion:chofer')->group(function () {
     Route::get('/dashboard', fn() => view('chofer.dashboard'))->name('dashboard');
 
-    Route::get('/vehiculos',         fn() => view('home'))->name('vehiculos.index');
-    Route::get('/vehiculos/{id}',    fn() => view('home'))->name('vehiculos.show');
+    // Vehículos disponibles
+    Route::get('/vehiculos',         [ChoferVehiculoController::class, 'index'])->name('vehiculos.index');
+    Route::get('/vehiculos/{id}',    [ChoferVehiculoController::class, 'show'])->name('vehiculos.show');
 
-    Route::get('/solicitudes',       fn() => view('home'))->name('solicitudes.index');
-    Route::get('/solicitudes/crear', fn() => view('home'))->name('solicitudes.create');
+    // Solicitudes
+    Route::get('/solicitudes',                    [ChoferSolicitudController::class, 'index'])->name('solicitudes.index');
+    Route::get('/solicitudes/crear',              [ChoferSolicitudController::class, 'create'])->name('solicitudes.create');
+    Route::post('/solicitudes',                   [ChoferSolicitudController::class, 'store'])->name('solicitudes.store');
+    Route::patch('/solicitudes/{id}/cancelar',    [ChoferSolicitudController::class, 'cancelar'])->name('solicitudes.cancelar');
 
-    Route::get('/historial',         fn() => view('home'))->name('historial');
+    // Historial
+    Route::get('/historial', [HistorialController::class, 'index'])->name('historial');
 });
