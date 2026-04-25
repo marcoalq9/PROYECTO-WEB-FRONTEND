@@ -13,6 +13,7 @@ use App\Http\Controllers\Chofer\VehiculoController as ChoferVehiculoController;
 use App\Http\Controllers\Chofer\SolicitudController as ChoferSolicitudController;
 use App\Http\Controllers\Chofer\HistorialController;
 use App\Http\Controllers\Admin\ReporteController;
+use App\Http\Controllers\Operador\MantenimientoController as OperadorMantenimientoController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -83,9 +84,14 @@ Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->gro
     Route::put('/rutas/{id}',        [RutaController::class, 'update'])->name('rutas.update');
     Route::delete('/rutas/{id}',     [RutaController::class, 'destroy'])->name('rutas.destroy');
 
-    Route::get('/mantenimientos',             fn() => view('home'))->name('mantenimientos.index');
-    Route::get('/mantenimientos/crear',       fn() => view('home'))->name('mantenimientos.create');
-    Route::get('/mantenimientos/{id}/editar', fn() => view('home'))->name('mantenimientos.edit');
+    // Mantenimientos
+    Route::get('/mantenimientos',              [OperadorMantenimientoController::class, 'index'])->name('mantenimientos.index');
+    Route::get('/mantenimientos/crear',        [OperadorMantenimientoController::class, 'create'])->name('mantenimientos.create');
+    Route::post('/mantenimientos',             [OperadorMantenimientoController::class, 'store'])->name('mantenimientos.store');
+    Route::get('/mantenimientos/{id}/editar',  [OperadorMantenimientoController::class, 'edit'])->name('mantenimientos.edit');
+    Route::put('/mantenimientos/{id}',         [OperadorMantenimientoController::class, 'update'])->name('mantenimientos.update');
+    Route::patch('/mantenimientos/{id}/cerrar',[OperadorMantenimientoController::class, 'cerrar'])->name('mantenimientos.cerrar');
+    Route::delete('/mantenimientos/{id}',      [OperadorMantenimientoController::class, 'destroy'])->name('mantenimientos.destroy');
 });
 
 // ==================== CHOFER ====================
