@@ -12,6 +12,7 @@ use App\Http\Controllers\Operador\ViajeController;
 use App\Http\Controllers\Chofer\VehiculoController as ChoferVehiculoController;
 use App\Http\Controllers\Chofer\SolicitudController as ChoferSolicitudController;
 use App\Http\Controllers\Chofer\HistorialController;
+use App\Http\Controllers\Admin\ReporteController;
 
 // Rutas de autenticación
 Route::get('/',       [AuthController::class, 'showLogin'])->name('login');
@@ -48,9 +49,10 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
     Route::patch('/mantenimientos/{id}/cerrar',[MantenimientoController::class, 'cerrar'])->name('mantenimientos.cerrar');
     Route::delete('/mantenimientos/{id}',      [MantenimientoController::class, 'destroy'])->name('mantenimientos.destroy');
 
-    Route::get('/reportes/disponibilidad',   fn() => view('home'))->name('reportes.disponibilidad');
-    Route::get('/reportes/uso',              fn() => view('home'))->name('reportes.uso');
-    Route::get('/reportes/historial-chofer', fn() => view('home'))->name('reportes.historial-chofer');
+    // Reportes
+    Route::get('/reportes/disponibilidad',   [ReporteController::class, 'disponibilidad'])->name('reportes.disponibilidad');
+    Route::get('/reportes/uso',              [ReporteController::class, 'uso'])->name('reportes.uso');
+    Route::get('/reportes/historial-chofer', [ReporteController::class, 'historialChofer'])->name('reportes.historial-chofer');
 });
 
 // ==================== OPERADOR ====================
