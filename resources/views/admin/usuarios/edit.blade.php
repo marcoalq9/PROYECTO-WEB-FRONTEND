@@ -19,7 +19,7 @@
             <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
             <input type="text" name="nombre"
                    class="form-control @error('nombre') is-invalid @enderror"
-                   value="{{ old('nombre', $usuario['nombre']) }}">
+                   value="{{ old('nombre', $usuario['name'] ?? '') }}">
             @error('nombre')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
@@ -27,7 +27,7 @@
             <label class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
             <input type="email" name="correo"
                    class="form-control @error('correo') is-invalid @enderror"
-                   value="{{ old('correo', $usuario['correo']) }}">
+                   value="{{ old('correo', $usuario['email'] ?? '') }}">
             @error('correo')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
@@ -35,7 +35,7 @@
             <label class="form-label">Teléfono</label>
             <input type="text" name="telefono"
                    class="form-control @error('telefono') is-invalid @enderror"
-                   value="{{ old('telefono', $usuario['telefono']) }}">
+                   value="{{ old('telefono', $usuario['telephone'] ?? '') }}">
             @error('telefono')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
@@ -45,7 +45,7 @@
               <option value="">-- Seleccione un rol --</option>
               @foreach($roles as $rol)
                 <option value="{{ $rol }}"
-                  {{ old('rol', $usuario['rol']) == $rol ? 'selected' : '' }}>
+                  {{ old('rol', $usuario['role']['role_name'] ?? '') == $rol ? 'selected' : '' }}>
                   {{ $rol }}
                 </option>
               @endforeach

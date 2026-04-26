@@ -32,18 +32,20 @@
             @forelse($usuarios as $usuario)
             <tr>
               <td>{{ $usuario['id'] }}</td>
-              <td>{{ $usuario['nombre'] }}</td>
-              <td>{{ $usuario['correo'] }}</td>
-              <td>{{ $usuario['telefono'] ?? 'N/A' }}</td>
+              <td>{{ $usuario['name'] }}</td>
+              <td>{{ $usuario['email'] }}</td>
+              <td>{{ $usuario['telephone'] ?? 'N/A' }}</td>
               <td>
-                <span class="badge bg-info">{{ $usuario['rol'] }}</span>
+                <span class="badge bg-info">{{ $usuario['role']['role_name'] ?? 'N/A' }}</span>
               </td>
               <td>
-                <span class="badge bg-success">{{ $usuario['estado'] }}</span>
+                <span class="badge bg-{{ isset($usuario['deleted_at']) && $usuario['deleted_at'] ? 'danger' : 'success' }}">
+                  {{ isset($usuario['deleted_at']) && $usuario['deleted_at'] ? 'Inactivo' : 'Activo' }}
+                </span>
               </td>
               <td>
                 <a href="{{ route('admin.usuarios.edit', $usuario['id']) }}"
-                   class="btn btn-warning btn-sm">
+                  class="btn btn-warning btn-sm">
                   <i class="fas fa-edit"></i>
                 </a>
                 <form action="{{ route('admin.usuarios.destroy', $usuario['id']) }}"
