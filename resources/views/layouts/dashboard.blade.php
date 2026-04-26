@@ -58,6 +58,11 @@
     />
     <!--end::Third Party Plugin(Bootstrap Icons)-->
 
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+
     <!--begin::Required Plugin(AdminLTE)-->
     <link rel="stylesheet" href="{{ asset('css/adminlte.css') }}" />
     <!--end::Required Plugin(AdminLTE)-->
@@ -78,6 +83,12 @@
       crossorigin="anonymous"
     />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+      .btn-action {
+        width: 112px;
+        white-space: nowrap;
+      }
+    </style>
 @stack('styles')
   </head>
   <!--end::Head-->
@@ -348,7 +359,7 @@
       crossorigin="anonymous"
     ></script>
     <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
-    <script src="./js/adminlte.js"></script>
+    <script src="{{ asset('js/adminlte.js') }}"></script>
     <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
     <script>
       const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
@@ -574,6 +585,43 @@
       sparkline3.render();
     </script>
     <!--end::Script-->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (!window.flatpickr) {
+          return;
+        }
+
+        const locale = flatpickr.l10ns?.es ?? 'default';
+        const moveRequiredToVisibleInput = (selectedDates, dateStr, instance) => {
+          if (instance.altInput && instance.input.hasAttribute('required')) {
+            instance.altInput.required = true;
+            instance.input.required = false;
+          }
+        };
+
+        flatpickr('.js-date', {
+          locale,
+          altInput: true,
+          altFormat: 'd/m/Y',
+          dateFormat: 'Y-m-d',
+          allowInput: false,
+          onReady: moveRequiredToVisibleInput,
+        });
+
+        flatpickr('.js-datetime', {
+          locale,
+          enableTime: true,
+          time_24hr: true,
+          altInput: true,
+          altFormat: 'd/m/Y H:i',
+          dateFormat: 'Y-m-d\\TH:i',
+          allowInput: false,
+          onReady: moveRequiredToVisibleInput,
+        });
+      });
+    </script>
     @stack('scripts')
   </body>
   <!--end::Body-->

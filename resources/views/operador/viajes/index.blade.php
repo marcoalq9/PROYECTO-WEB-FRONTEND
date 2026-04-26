@@ -10,7 +10,7 @@
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-route me-1"></i> Registro de Viajes</h3>
         <div class="card-tools">
-          <a href="{{ route('operador.viajes.create') }}" class="btn btn-primary btn-sm">
+          <a href="{{ route('operador.viajes.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Registrar Salida
           </a>
         </div>
@@ -49,12 +49,13 @@
               </td>
               <td>
                 @if($viaje['estado'] === 'En curso')
-                  <button type="button" class="btn btn-success btn-sm"
+                  <button type="button" class="btn btn-success btn-action"
                           data-bs-toggle="modal"
                           data-bs-target="#modalRetorno"
                           data-id="{{ $viaje['id'] }}"
+                          data-salida="{{ $viaje['fecha_salida_input'] }}"
                           data-km="{{ $viaje['km_salida'] }}">
-                    <i class="fas fa-undo me-1"></i> Registrar Retorno
+                    <i class="fas fa-undo me-1"></i> Retorno
                   </button>
                 @else
                   <span class="text-muted small">Finalizado</span>
@@ -88,9 +89,11 @@
 
           <div class="mb-3">
             <label class="form-label">Fecha y Hora de Regreso <span class="text-danger">*</span></label>
-            <input type="datetime-local" name="fecha_regreso"
-                   class="form-control" required
+            <input type="text" name="fecha_regreso"
+                   id="fechaRegreso"
+                   class="form-control js-datetime" required
                    value="{{ date('Y-m-d\TH:i') }}">
+            <small class="text-muted">Fecha salida: <strong id="fechaSalidaRef">--</strong></small>
           </div>
 
           <div class="mb-3">
@@ -128,10 +131,13 @@
     const btn = event.relatedTarget;
     const id  = btn.getAttribute('data-id');
     const km  = btn.getAttribute('data-km');
+    const salida = btn.getAttribute('data-salida');
     document.getElementById('formRetorno').action = `/operador/viajes/${id}/retorno`;
     document.getElementById('kmSalidaRef').textContent = Number(km).toLocaleString() + ' km';
     document.getElementById('kmSalidaOriginal').value  = km;
     document.getElementById('kmRegreso').min = km;
+    document.getElementById('fechaSalidaRef').textContent = salida ? salida.replace('T', ' ') : '--';
+    document.getElementById('fechaRegreso').min = salida || '';
   });
 </script>
 @endpush

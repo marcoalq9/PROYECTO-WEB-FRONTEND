@@ -32,6 +32,7 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
     Route::get('/usuarios/{id}/editar',    [UsuarioController::class, 'edit'])->name('usuarios.edit');
     Route::put('/usuarios/{id}',           [UsuarioController::class, 'update'])->name('usuarios.update');
     Route::delete('/usuarios/{id}',        [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+    Route::patch('/usuarios/{id}/activar', [UsuarioController::class, 'restore'])->name('usuarios.restore');
 
     // Vehículos
     Route::get('/vehiculos',             [VehiculoController::class, 'index'])->name('vehiculos.index');
@@ -40,6 +41,7 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
     Route::get('/vehiculos/{id}/editar', [VehiculoController::class, 'edit'])->name('vehiculos.edit');
     Route::put('/vehiculos/{id}',        [VehiculoController::class, 'update'])->name('vehiculos.update');
     Route::delete('/vehiculos/{id}',     [VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
+    Route::patch('/vehiculos/{id}/activar', [VehiculoController::class, 'restore'])->name('vehiculos.restore');
 
     // Mantenimientos
     Route::get('/mantenimientos',              [MantenimientoController::class, 'index'])->name('mantenimientos.index');
@@ -49,6 +51,7 @@ Route::prefix('admin')->name('admin.')->middleware('sesion:admin')->group(functi
     Route::put('/mantenimientos/{id}',         [MantenimientoController::class, 'update'])->name('mantenimientos.update');
     Route::patch('/mantenimientos/{id}/cerrar',[MantenimientoController::class, 'cerrar'])->name('mantenimientos.cerrar');
     Route::delete('/mantenimientos/{id}',      [MantenimientoController::class, 'destroy'])->name('mantenimientos.destroy');
+    Route::patch('/mantenimientos/{id}/activar',[MantenimientoController::class, 'restore'])->name('mantenimientos.restore');
 
     // Reportes
     Route::get('/reportes/disponibilidad',   [ReporteController::class, 'disponibilidad'])->name('reportes.disponibilidad');
@@ -73,6 +76,7 @@ Route::prefix('operador')->name('operador.')->middleware('sesion:operador')->gro
     // Viajes
     Route::get('/viajes',                      [ViajeController::class, 'index'])->name('viajes.index');
     Route::get('/viajes/crear',                [ViajeController::class, 'create'])->name('viajes.create');
+    Route::get('/viajes/chofer/{id}/vehiculos-aprobados', [ViajeController::class, 'vehiculosAprobados'])->name('viajes.vehiculos-aprobados');
     Route::post('/viajes',                     [ViajeController::class, 'store'])->name('viajes.store');
     Route::patch('/viajes/{id}/retorno',       [ViajeController::class, 'registrarRetorno'])->name('viajes.retorno');
 

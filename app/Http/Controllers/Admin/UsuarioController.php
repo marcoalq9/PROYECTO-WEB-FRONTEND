@@ -3,75 +3,127 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\VehiculosApi;
 use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
 {
-    // Lista todos los usuarios
-    public function index()
+    public function __construct(private VehiculosApi $api)
     {
-        // TODO: reemplazar con llamada al API
-        $usuarios = [
-            ['id' => 1, 'nombre' => 'Administrador', 'correo' => 'admin@flotilla.com',    'telefono' => '8888-0001', 'rol' => 'Administrador', 'estado' => 'Activo'],
-            ['id' => 2, 'nombre' => 'Operador',       'correo' => 'operador@flotilla.com', 'telefono' => '8888-0002', 'rol' => 'Operador',       'estado' => 'Activo'],
-            ['id' => 3, 'nombre' => 'Chofer',         'correo' => 'chofer@flotilla.com',   'telefono' => '8888-0003', 'rol' => 'Chofer',         'estado' => 'Activo'],
-        ];
-
-        return view('admin.usuarios.index', compact('usuarios'));
     }
 
-    // Muestra formulario de creación
+    public function index(Request $request)
+    {
+        $estado = $request->input('estado', 'Activo');
+        $endpoint = $estado === 'Inactivo' ? 'users/inactive' : 'users';
+        $usuarios = collect($this->api->list($endpoint))->map(fn ($user) => $this->toView($user))->all();
+        $estados = ['Activo', 'Inactivo'];
+
+        return view('admin.usuarios.index', compact('usuarios', 'estados', 'estado'));
+    }
+
     public function create()
     {
         $roles = ['Administrador', 'Operador', 'Chofer'];
+
         return view('admin.usuarios.create', compact('roles'));
     }
 
-    // Muestra formulario de edición
     public function edit($id)
     {
-        // TODO: reemplazar con llamada al API
-        $usuario = ['id' => $id, 'nombre' => 'Usuario Ejemplo', 'correo' => 'usuario@flotilla.com', 'telefono' => '8888-0000', 'rol' => 'Chofer'];
-        $roles   = ['Administrador', 'Operador', 'Chofer'];
+        $user = $this->api->item("users/{$id}");
+
+        if (! $user) {
+            return redirect()->route('admin.usuarios.index')->with('error', 'Usuario no encontrado.');
+        }
+
+        $usuario = $this->toView($user);
+        $roles = ['Administrador', 'Operador', 'Chofer'];
+
         return view('admin.usuarios.edit', compact('usuario', 'roles'));
     }
 
-    // Procesa creación
     public function store(Request $request)
     {
         $request->validate([
-            'nombre'   => 'required|string|max:100',
-            'correo'   => 'required|email',
+            'nombre' => 'required|string|max:100',
+            'correo' => 'required|email',
             'telefono' => 'nullable|string|max:20',
-            'rol'      => 'required|string',
+            'rol' => 'required|string',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // TODO: enviar al API
-        return redirect()->route('admin.usuarios.index')
-            ->with('success', 'Usuario creado correctamente.');
+        $response = $this->api->post('users', [
+            'name' => $request->nombre,
+            'email' => $request->correo,
+            'telephone' => $request->telefono,
+            'role_id' => $this->api->roleId($request->rol),
+            'password' => $request->password,
+        ]);
+
+        if ($response->failed()) {
+            return back()->withInput()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario creado correctamente.');
     }
 
-    // Procesa edición
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nombre'   => 'required|string|max:100',
-            'correo'   => 'required|email',
+            'nombre' => 'required|string|max:100',
+            'correo' => 'required|email',
             'telefono' => 'nullable|string|max:20',
-            'rol'      => 'required|string',
+            'rol' => 'required|string',
         ]);
 
-        // TODO: enviar al API
-        return redirect()->route('admin.usuarios.index')
-            ->with('success', 'Usuario actualizado correctamente.');
+        $response = $this->api->put("users/{$id}", [
+            'name' => $request->nombre,
+            'email' => $request->correo,
+            'telephone' => $request->telefono,
+            'role_id' => $this->api->roleId($request->rol),
+        ]);
+
+        if ($response->failed()) {
+            return back()->withInput()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
-    // Borrado lógico
     public function destroy($id)
     {
-        // TODO: enviar al API
-        return redirect()->route('admin.usuarios.index')
-            ->with('success', 'Usuario eliminado correctamente.');
+        $response = $this->api->delete("users/{$id}");
+
+        if ($response->failed()) {
+            return back()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
+    }
+
+    public function restore($id)
+    {
+        $response = $this->api->patch("users/{$id}/restore");
+
+        if ($response->failed()) {
+            return back()->with('error', $this->api->error($response));
+        }
+
+        return redirect()
+            ->route('admin.usuarios.index', ['estado' => 'Inactivo'])
+            ->with('success', 'Usuario activado correctamente.');
+    }
+
+    private function toView(array $user): array
+    {
+        return [
+            'id' => $user['id'] ?? null,
+            'nombre' => $user['name'] ?? '',
+            'correo' => $user['email'] ?? '',
+            'telefono' => $user['telephone'] ?? '',
+            'rol' => $this->api->roleName($user['role_id'] ?? null, $user['role'] ?? null),
+            'estado' => empty($user['deleted_at']) ? 'Activo' : 'Inactivo',
+        ];
     }
 }

@@ -10,7 +10,7 @@
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-tools me-1"></i> Lista de Mantenimientos</h3>
         <div class="card-tools">
-          <a href="{{ route('operador.mantenimientos.create') }}" class="btn btn-primary btn-sm">
+          <a href="{{ route('operador.mantenimientos.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Nuevo Mantenimiento
           </a>
         </div>
@@ -52,26 +52,26 @@
               <td>
                 @if($mantenimiento['estado'] === 'Abierto')
                   <form action="{{ route('operador.mantenimientos.cerrar', $mantenimiento['id']) }}"
-                        method="POST" class="d-inline"
+                        method="POST" class="d-inline-block me-1 mb-1"
                         onsubmit="return confirm('¿Cerrar este mantenimiento? El vehículo quedará disponible.')">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="btn btn-success btn-sm">
+                    <button type="submit" class="btn btn-success btn-action">
                       <i class="fas fa-check me-1"></i> Cerrar
                     </button>
                   </form>
                 @endif
                 <a href="{{ route('operador.mantenimientos.edit', $mantenimiento['id']) }}"
-                   class="btn btn-warning btn-sm">
-                  <i class="fas fa-edit"></i>
+                   class="btn btn-warning btn-action me-1 mb-1">
+                  <i class="fas fa-edit me-1"></i> Editar
                 </a>
                 <form action="{{ route('operador.mantenimientos.destroy', $mantenimiento['id']) }}"
-                      method="POST" class="d-inline"
+                      method="POST" class="d-inline-block mb-1"
                       onsubmit="return confirm('¿Eliminar este mantenimiento?')">
                   @csrf
                   @method('DELETE')
-                  <button type="submit" class="btn btn-danger btn-sm">
-                    <i class="fas fa-trash"></i>
+                  <button type="submit" class="btn btn-danger btn-action">
+                    <i class="fas fa-trash me-1"></i> Eliminar
                   </button>
                 </form>
               </td>

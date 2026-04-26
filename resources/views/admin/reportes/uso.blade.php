@@ -16,12 +16,12 @@
         <form method="GET" action="{{ route('admin.reportes.uso') }}" class="row g-2 align-items-end">
           <div class="col-md-4">
             <label class="form-label">Fecha de Inicio <span class="text-danger">*</span></label>
-            <input type="date" name="fecha_inicio" class="form-control"
+            <input type="text" name="fecha_inicio" class="form-control js-date"
                    value="{{ $fecha_inicio }}" required>
           </div>
           <div class="col-md-4">
             <label class="form-label">Fecha de Fin <span class="text-danger">*</span></label>
-            <input type="date" name="fecha_fin" class="form-control"
+            <input type="text" name="fecha_fin" class="form-control js-date"
                    value="{{ $fecha_fin }}" required>
           </div>
           <div class="col-md-2">

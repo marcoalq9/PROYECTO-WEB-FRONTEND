@@ -16,12 +16,12 @@
         <form method="GET" action="{{ route('admin.reportes.disponibilidad') }}" class="row g-2 align-items-end">
           <div class="col-md-4">
             <label class="form-label">Fecha y Hora de Inicio <span class="text-danger">*</span></label>
-            <input type="datetime-local" name="fecha_inicio" class="form-control"
+            <input type="text" name="fecha_inicio" class="form-control js-datetime"
                    value="{{ $fecha_inicio }}" required>
           </div>
           <div class="col-md-4">
             <label class="form-label">Fecha y Hora de Fin <span class="text-danger">*</span></label>
-            <input type="datetime-local" name="fecha_fin" class="form-control"
+            <input type="text" name="fecha_fin" class="form-control js-datetime"
                    value="{{ $fecha_fin }}" required>
           </div>
           <div class="col-md-2">
@@ -63,7 +63,7 @@
             <div class="col-md-6 col-lg-4 mb-3">
               <div class="card border h-100">
                 @if($vehiculo['imagen'])
-                  <img src="{{ asset('storage/' . $vehiculo['imagen']) }}"
+                  <img src="{{ $vehiculo['imagen'] }}"
                        class="card-img-top" style="height:150px; object-fit:cover;">
                 @else
                   <div class="bg-secondary d-flex align-items-center justify-content-center"
@@ -78,9 +78,10 @@
                     <i class="fas fa-calendar me-1 text-muted"></i> {{ $vehiculo['anio'] }}<br>
                     <i class="fas fa-car me-1 text-muted"></i> {{ $vehiculo['tipo'] }}<br>
                     <i class="fas fa-users me-1 text-muted"></i> {{ $vehiculo['capacidad'] }} personas<br>
-                    <i class="fas fa-gas-pump me-1 text-muted"></i> {{ $vehiculo['combustible'] }}
+                    <i class="fas fa-gas-pump me-1 text-muted"></i> {{ $vehiculo['combustible'] }}<br>
+                    <i class="fas fa-circle me-1 text-muted"></i> Estado actual: {{ $vehiculo['estado'] }}
                   </p>
-                  <span class="badge bg-success">Disponible</span>
+                  <span class="badge bg-success">Disponible en rango</span>
                 </div>
               </div>
             </div>

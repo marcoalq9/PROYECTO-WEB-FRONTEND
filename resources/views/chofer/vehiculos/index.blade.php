@@ -16,12 +16,12 @@
         <form method="GET" action="{{ route('chofer.vehiculos.index') }}" class="row g-2 align-items-end">
           <div class="col-md-4">
             <label class="form-label">Fecha y Hora de Inicio</label>
-            <input type="datetime-local" name="fecha_inicio" class="form-control"
+            <input type="text" name="fecha_inicio" class="form-control js-datetime"
                    value="{{ $fecha_inicio }}">
           </div>
           <div class="col-md-4">
             <label class="form-label">Fecha y Hora de Fin</label>
-            <input type="datetime-local" name="fecha_fin" class="form-control"
+            <input type="text" name="fecha_fin" class="form-control js-datetime"
                    value="{{ $fecha_fin }}">
           </div>
           <div class="col-md-2">
@@ -49,7 +49,7 @@
     <div class="card h-100 shadow-sm">
       {{-- Imagen del vehículo --}}
       @if($vehiculo['imagen'])
-        <img src="{{ asset('storage/' . $vehiculo['imagen']) }}"
+        <img src="{{ $vehiculo['imagen'] }}"
              class="card-img-top" alt="{{ $vehiculo['marca'] }} {{ $vehiculo['modelo'] }}"
              style="height:200px; object-fit:cover;">
       @else

@@ -3,54 +3,87 @@
 namespace App\Http\Controllers\Chofer;
 
 use App\Http\Controllers\Controller;
+use App\Services\VehiculosApi;
 use Illuminate\Http\Request;
 
 class SolicitudController extends Controller
 {
-    private function solicitudesDemo()
+    public function __construct(private VehiculosApi $api)
     {
-        return [
-            ['id' => 1, 'vehiculo' => 'Toyota Hilux (ABC-123)',   'fecha_inicio' => '2026-04-25 08:00', 'fecha_fin' => '2026-04-25 17:00', 'motivo' => 'Entrega de materiales',  'estado' => 'Pendiente'],
-            ['id' => 2, 'vehiculo' => 'Nissan Frontier (JKL-012)','fecha_inicio' => '2026-04-20 07:00', 'fecha_fin' => '2026-04-20 15:00', 'motivo' => 'Visita a proveedor',     'estado' => 'Aprobada'],
-            ['id' => 3, 'vehiculo' => 'Toyota Hilux (ABC-123)',   'fecha_inicio' => '2026-04-15 09:00', 'fecha_fin' => '2026-04-15 18:00', 'motivo' => 'Transporte de equipos',  'estado' => 'Rechazada'],
-            ['id' => 4, 'vehiculo' => 'Nissan Frontier (JKL-012)','fecha_inicio' => '2026-04-10 08:00', 'fecha_fin' => '2026-04-10 12:00', 'motivo' => 'Reunión en sede',        'estado' => 'Cancelada'],
-        ];
     }
 
     public function index()
     {
-        $solicitudes = $this->solicitudesDemo();
+        $solicitudes = collect($this->api->list('requestVehicle'))
+            ->map(fn ($requestVehicle) => $this->toView($requestVehicle))
+            ->all();
+
         return view('chofer.solicitudes.index', compact('solicitudes'));
     }
 
     public function create(Request $request)
     {
-        $vehiculos = [
-            ['id' => 1, 'nombre' => 'Toyota Hilux (ABC-123)'],
-            ['id' => 4, 'nombre' => 'Nissan Frontier (JKL-012)'],
-        ];
+        $vehiculos = collect($this->api->list('vehicles'))
+            ->filter(fn ($vehicle) => in_array((int) ($vehicle['status'] ?? 0), [1, 2], true))
+            ->map(fn ($vehicle) => ['id' => $vehicle['id'], 'nombre' => $this->api->vehicleName($vehicle)])
+            ->all();
         $vehiculo_id = $request->vehiculo_id;
-        return view('chofer.solicitudes.create', compact('vehiculos', 'vehiculo_id'));
+        $fecha_inicio = $this->api->dateTimeForInput($request->fecha_inicio);
+        $fecha_fin = $this->api->dateTimeForInput($request->fecha_fin);
+
+        return view('chofer.solicitudes.create', compact('vehiculos', 'vehiculo_id', 'fecha_inicio', 'fecha_fin'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'vehiculo_id'  => 'required',
+            'vehiculo_id' => 'required',
             'fecha_inicio' => 'required|date',
-            'fecha_fin'    => 'required|date|after:fecha_inicio',
-            'motivo'       => 'nullable|string|max:255',
+            'fecha_fin' => 'required|date|after:fecha_inicio',
+            'motivo' => 'nullable|string|max:255',
         ]);
 
-        // TODO: enviar al API
+        $response = $this->api->post('requestVehicle', [
+            'user_id' => session('user_id'),
+            'vehicle_id' => $request->vehiculo_id,
+            'start_date' => $request->fecha_inicio,
+            'end_date' => $request->fecha_fin,
+            'observation' => $request->motivo,
+            'assigned_by' => session('user_id'),
+        ]);
+
+        if ($response->failed()) {
+            return back()->withInput()->with('error', $this->api->error($response));
+        }
+
         return redirect()->route('chofer.solicitudes.index')
-            ->with('success', 'Solicitud enviada correctamente. Queda pendiente de aprobación.');
+            ->with('success', 'Solicitud enviada correctamente. Queda pendiente de aprobacion.');
     }
 
     public function cancelar($id)
     {
-        // TODO: enviar al API
-        return redirect()->route('chofer.solicitudes.index')
-            ->with('success', 'Solicitud cancelada correctamente.');
+        $response = $this->api->patch("requestVehicle/{$id}", ['status' => 4]);
+
+        if ($response->failed()) {
+            return back()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('chofer.solicitudes.index')->with('success', 'Solicitud cancelada correctamente.');
+    }
+
+    private function toView(array $requestVehicle): array
+    {
+        $vehicle = $requestVehicle['vehicle'] ?? $requestVehicle;
+
+        return [
+            'id' => $requestVehicle['id'] ?? $requestVehicle['request_number'] ?? null,
+            'vehiculo' => isset($requestVehicle['vehicle'])
+                ? $this->api->vehicleName($requestVehicle['vehicle'])
+                : trim(($vehicle['brand'] ?? '') . ' ' . ($vehicle['model'] ?? '') . ' (' . ($vehicle['plate'] ?? '') . ')'),
+            'fecha_inicio' => $this->api->displayDateTime($requestVehicle['start_date'] ?? null),
+            'fecha_fin' => $this->api->displayDateTime($requestVehicle['end_date'] ?? null),
+            'motivo' => $requestVehicle['observation'] ?? '',
+            'estado' => $this->api->requestStatusToView($requestVehicle['status'] ?? 0),
+        ];
     }
 }

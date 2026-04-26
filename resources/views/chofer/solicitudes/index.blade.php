@@ -10,7 +10,7 @@
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-file-alt me-1"></i> Mis Solicitudes</h3>
         <div class="card-tools">
-          <a href="{{ route('chofer.solicitudes.create') }}" class="btn btn-primary btn-sm">
+          <a href="{{ route('chofer.solicitudes.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Nueva Solicitud
           </a>
         </div>
@@ -51,11 +51,11 @@
               <td>
                 @if($solicitud['estado'] === 'Pendiente')
                   <form action="{{ route('chofer.solicitudes.cancelar', $solicitud['id']) }}"
-                        method="POST" class="d-inline"
+                        method="POST" class="d-inline-block"
                         onsubmit="return confirm('¿Cancelar esta solicitud?')">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="btn btn-danger btn-sm">
+                    <button type="submit" class="btn btn-danger btn-action">
                       <i class="fas fa-times me-1"></i> Cancelar
                     </button>
                   </form>

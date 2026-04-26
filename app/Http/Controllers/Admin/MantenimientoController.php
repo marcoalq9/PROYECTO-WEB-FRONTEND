@@ -3,91 +3,163 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\VehiculosApi;
 use Illuminate\Http\Request;
 
 class MantenimientoController extends Controller
 {
-    private function mantenimientosDemo()
+    public function __construct(private VehiculosApi $api)
     {
-        return [
-            ['id' => 1, 'vehiculo' => 'Toyota Hilux (ABC-123)',   'tipo' => 'Preventivo',  'fecha_inicio' => '2026-04-01', 'fecha_cierre' => '2026-04-03', 'descripcion' => 'Cambio de aceite y filtros',  'costo' => 45000, 'estado' => 'Cerrado'],
-            ['id' => 2, 'vehiculo' => 'Kia Sportage (GHI-789)',   'tipo' => 'Correctivo',  'fecha_inicio' => '2026-04-20', 'fecha_cierre' => null,         'descripcion' => 'Falla en sistema de frenos',  'costo' => null,  'estado' => 'Abierto'],
-            ['id' => 3, 'vehiculo' => 'Hyundai Tucson (DEF-456)', 'tipo' => 'Preventivo',  'fecha_inicio' => '2026-03-15', 'fecha_cierre' => '2026-03-16', 'descripcion' => 'Revisión general',            'costo' => 25000, 'estado' => 'Cerrado'],
-        ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $mantenimientos = $this->mantenimientosDemo();
-        return view('admin.mantenimientos.index', compact('mantenimientos'));
+        $estado = $request->input('estado', 'Activo');
+        $endpoint = $estado === 'Inactivo' ? 'maintenance/inactive' : 'maintenance';
+
+        $mantenimientos = collect($this->api->list($endpoint))
+            ->map(fn ($maintenance) => $this->toView($maintenance))
+            ->all();
+        $estados = ['Activo', 'Inactivo'];
+
+        return view('admin.mantenimientos.index', compact('mantenimientos', 'estados', 'estado'));
     }
 
     public function create()
     {
-        // TODO: reemplazar con llamada al API para obtener vehículos
-        $vehiculos = [
-            ['id' => 1, 'nombre' => 'Toyota Hilux (ABC-123)'],
-            ['id' => 2, 'nombre' => 'Hyundai Tucson (DEF-456)'],
-            ['id' => 3, 'nombre' => 'Kia Sportage (GHI-789)'],
-            ['id' => 4, 'nombre' => 'Nissan Frontier (JKL-012)'],
-        ];
-        $tipos = ['Preventivo', 'Correctivo'];
-        return view('admin.mantenimientos.create', compact('vehiculos', 'tipos'));
+        return view('admin.mantenimientos.create', [
+            'vehiculos' => $this->vehicleOptions(),
+            'tipos' => ['Preventivo', 'Correctivo'],
+        ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'vehiculo_id'  => 'required',
-            'tipo'         => 'required|string',
-            'fecha_inicio' => 'required|date',
-            'descripcion'  => 'required|string|max:500',
-            'costo'        => 'nullable|numeric|min:0',
-        ]);
+        $request->validate($this->rules());
 
-        // TODO: enviar al API
+        $response = $this->api->post('maintenance', $this->toApi($request));
+
+        if ($response->failed()) {
+            return back()->withInput()->with('error', $this->api->error($response));
+        }
+
         return redirect()->route('admin.mantenimientos.index')
-            ->with('success', 'Mantenimiento registrado correctamente. El vehículo ha sido marcado como no disponible.');
+            ->with('success', 'Mantenimiento registrado correctamente.');
     }
 
     public function edit($id)
     {
-        $mantenimiento = $this->mantenimientosDemo()[1];
-        $vehiculos = [
-            ['id' => 1, 'nombre' => 'Toyota Hilux (ABC-123)'],
-            ['id' => 2, 'nombre' => 'Hyundai Tucson (DEF-456)'],
-            ['id' => 3, 'nombre' => 'Kia Sportage (GHI-789)'],
-        ];
-        $tipos = ['Preventivo', 'Correctivo'];
-        return view('admin.mantenimientos.edit', compact('mantenimiento', 'vehiculos', 'tipos'));
+        $maintenance = $this->api->item("maintenance/{$id}");
+
+        if (! $maintenance) {
+            return redirect()->route('admin.mantenimientos.index')->with('error', 'Mantenimiento no encontrado.');
+        }
+
+        return view('admin.mantenimientos.edit', [
+            'mantenimiento' => $this->toView($maintenance),
+            'vehiculos' => $this->vehicleOptions(),
+            'tipos' => ['Preventivo', 'Correctivo'],
+        ]);
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'vehiculo_id'  => 'required',
-            'tipo'         => 'required|string',
-            'fecha_inicio' => 'required|date',
-            'descripcion'  => 'required|string|max:500',
-            'costo'        => 'nullable|numeric|min:0',
-        ]);
+        $request->validate($this->rules());
 
-        // TODO: enviar al API
-        return redirect()->route('admin.mantenimientos.index')
-            ->with('success', 'Mantenimiento actualizado correctamente.');
+        $response = $this->api->put("maintenance/{$id}", $this->toApi($request));
+
+        if ($response->failed()) {
+            return back()->withInput()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('admin.mantenimientos.index')->with('success', 'Mantenimiento actualizado correctamente.');
     }
 
     public function cerrar($id)
     {
-        // TODO: enviar al API
-        return redirect()->route('admin.mantenimientos.index')
-            ->with('success', 'Mantenimiento cerrado. El vehículo vuelve a estar disponible.');
+        $response = $this->api->patch("maintenance/{$id}", [
+            'status' => 0,
+            'end_date' => now()->toDateString(),
+        ]);
+
+        if ($response->failed()) {
+            return back()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('admin.mantenimientos.index')->with('success', 'Mantenimiento cerrado.');
     }
 
     public function destroy($id)
     {
-        // TODO: enviar al API
-        return redirect()->route('admin.mantenimientos.index')
-            ->with('success', 'Mantenimiento eliminado correctamente.');
+        $response = $this->api->delete("maintenance/{$id}");
+
+        if ($response->failed()) {
+            return back()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('admin.mantenimientos.index')->with('success', 'Mantenimiento eliminado correctamente.');
+    }
+
+    public function restore($id)
+    {
+        $response = $this->api->patch("maintenance/{$id}/restore");
+
+        if ($response->failed()) {
+            return back()->with('error', $this->api->error($response));
+        }
+
+        return redirect()
+            ->route('admin.mantenimientos.index', ['estado' => 'Inactivo'])
+            ->with('success', 'Mantenimiento activado correctamente.');
+    }
+
+    private function rules(): array
+    {
+        return [
+            'vehiculo_id' => 'required',
+            'tipo' => 'required|string',
+            'fecha_inicio' => 'required|date',
+            'fecha_cierre' => 'nullable|date|after_or_equal:fecha_inicio',
+            'descripcion' => 'required|string|max:500',
+            'costo' => 'nullable|numeric|min:0',
+        ];
+    }
+
+    private function toApi(Request $request): array
+    {
+        return [
+            'vehicle_id' => $request->vehiculo_id,
+            'tipo' => strtolower($request->tipo),
+            'start_date' => $request->fecha_inicio,
+            'end_date' => $request->fecha_cierre,
+            'description' => $request->descripcion,
+            'cost' => $request->costo,
+            'status' => 1,
+        ];
+    }
+
+    private function toView(array $maintenance): array
+    {
+        return [
+            'id' => $maintenance['id'] ?? null,
+            'vehiculo_id' => $maintenance['vehicle_id'] ?? null,
+            'vehiculo' => isset($maintenance['vehicle']) ? $this->api->vehicleName($maintenance['vehicle']) : '',
+            'kilometraje' => $maintenance['vehicle']['mileage'] ?? null,
+            'tipo' => ucfirst($maintenance['tipo'] ?? ''),
+            'fecha_inicio' => $this->api->dateForInput($maintenance['start_date'] ?? null),
+            'fecha_cierre' => $this->api->dateForInput($maintenance['end_date'] ?? null),
+            'descripcion' => $maintenance['description'] ?? '',
+            'costo' => $maintenance['cost'] ?? null,
+            'estado' => empty($maintenance['deleted_at'])
+                ? $this->api->maintenanceStatusToView($maintenance['status'] ?? 1)
+                : 'Inactivo',
+        ];
+    }
+
+    private function vehicleOptions(): array
+    {
+        return collect($this->api->list('vehicles'))
+            ->map(fn ($vehicle) => ['id' => $vehicle['id'], 'nombre' => $this->api->vehicleName($vehicle)])
+            ->all();
     }
 }

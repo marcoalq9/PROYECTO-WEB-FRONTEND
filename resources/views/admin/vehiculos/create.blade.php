@@ -94,6 +94,14 @@
               @error('estado')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Kilometraje <span class="text-danger">*</span></label>
+              <input type="number" name="kilometraje" min="0"
+                     class="form-control @error('kilometraje') is-invalid @enderror"
+                     value="{{ old('kilometraje', 0) }}" placeholder="Ej: 15000">
+              @error('kilometraje')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+
             <div class="col-md-12 mb-3">
               <label class="form-label">Imagen del Vehículo</label>
               <input type="file" name="imagen" accept="image/*"

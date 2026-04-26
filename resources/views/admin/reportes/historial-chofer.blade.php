@@ -28,12 +28,12 @@
           </div>
           <div class="col-md-3">
             <label class="form-label">Fecha Inicio</label>
-            <input type="date" name="fecha_inicio" class="form-control"
+            <input type="text" name="fecha_inicio" class="form-control js-date"
                    value="{{ $fecha_inicio }}">
           </div>
           <div class="col-md-3">
             <label class="form-label">Fecha Fin</label>
-            <input type="date" name="fecha_fin" class="form-control"
+            <input type="text" name="fecha_fin" class="form-control js-date"
                    value="{{ $fecha_fin }}">
           </div>
           <div class="col-md-2">
@@ -42,9 +42,9 @@
             </button>
           </div>
           @if($chofer_id)
-          <div class="col-md-1">
+          <div class="col-md-2">
             <a href="{{ route('admin.reportes.historial-chofer') }}" class="btn btn-outline-secondary w-100">
-              <i class="fas fa-times"></i>
+              <i class="fas fa-times me-1"></i> Limpiar
             </a>
           </div>
           @endif

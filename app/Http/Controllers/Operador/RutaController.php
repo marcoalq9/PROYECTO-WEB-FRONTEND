@@ -3,23 +3,19 @@
 namespace App\Http\Controllers\Operador;
 
 use App\Http\Controllers\Controller;
+use App\Services\VehiculosApi;
 use Illuminate\Http\Request;
 
 class RutaController extends Controller
 {
-    private function rutasDemo()
+    public function __construct(private VehiculosApi $api)
     {
-        return [
-            ['id' => 1, 'nombre' => 'San José - Heredia',    'inicio' => 'San José Centro',   'fin' => 'Heredia Centro',    'distancia' => 12.5, 'descripcion' => 'Ruta principal por circunvalación'],
-            ['id' => 2, 'nombre' => 'San José - Alajuela',   'inicio' => 'San José Centro',   'fin' => 'Alajuela Centro',   'distancia' => 20.0, 'descripcion' => 'Ruta por autopista General Cañas'],
-            ['id' => 3, 'nombre' => 'Heredia - Cartago',     'inicio' => 'Heredia Centro',    'fin' => 'Cartago Centro',    'distancia' => 35.0, 'descripcion' => 'Ruta por San José'],
-            ['id' => 4, 'nombre' => 'San José - Limón',      'inicio' => 'San José Centro',   'fin' => 'Limón Centro',      'distancia' => 160.0,'descripcion' => 'Ruta por autopista Braulio Carrillo'],
-        ];
     }
 
     public function index()
     {
-        $rutas = $this->rutasDemo();
+        $rutas = collect($this->api->list('routes'))->map(fn ($route) => $this->toView($route))->all();
+
         return view('operador.rutas.index', compact('rutas'));
     }
 
@@ -30,44 +26,85 @@ class RutaController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre'     => 'required|string|max:100',
-            'inicio'     => 'required|string|max:100',
-            'fin'        => 'required|string|max:100',
-            'distancia'  => 'nullable|numeric|min:0',
-            'descripcion'=> 'nullable|string|max:500',
-        ]);
+        $request->validate($this->rules());
 
-        // TODO: enviar al API
-        return redirect()->route('operador.rutas.index')
-            ->with('success', 'Ruta creada correctamente.');
+        $response = $this->api->post('routes', $this->toApi($request));
+
+        if ($response->failed()) {
+            return back()->withInput()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('operador.rutas.index')->with('success', 'Ruta creada correctamente.');
     }
 
     public function edit($id)
     {
-        $ruta = $this->rutasDemo()[0];
+        $route = $this->api->item("routes/{$id}");
+
+        if (! $route) {
+            return redirect()->route('operador.rutas.index')->with('error', 'Ruta no encontrada.');
+        }
+
+        $ruta = $this->toView($route);
+
         return view('operador.rutas.edit', compact('ruta'));
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nombre'     => 'required|string|max:100',
-            'inicio'     => 'required|string|max:100',
-            'fin'        => 'required|string|max:100',
-            'distancia'  => 'nullable|numeric|min:0',
-            'descripcion'=> 'nullable|string|max:500',
-        ]);
+        $request->validate($this->rules());
 
-        // TODO: enviar al API
-        return redirect()->route('operador.rutas.index')
-            ->with('success', 'Ruta actualizada correctamente.');
+        $response = $this->api->put("routes/{$id}", $this->toApi($request));
+
+        if ($response->failed()) {
+            return back()->withInput()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('operador.rutas.index')->with('success', 'Ruta actualizada correctamente.');
     }
 
     public function destroy($id)
     {
-        // TODO: enviar al API
-        return redirect()->route('operador.rutas.index')
-            ->with('success', 'Ruta eliminada correctamente.');
+        $response = $this->api->delete("routes/{$id}");
+
+        if ($response->failed()) {
+            return back()->with('error', $this->api->error($response));
+        }
+
+        return redirect()->route('operador.rutas.index')->with('success', 'Ruta eliminada correctamente.');
+    }
+
+    private function rules(): array
+    {
+        return [
+            'nombre' => 'required|string|max:100',
+            'inicio' => 'required|string|max:100',
+            'fin' => 'required|string|max:100',
+            'distancia' => 'nullable|numeric|min:0',
+            'descripcion' => 'nullable|string|max:500',
+        ];
+    }
+
+    private function toApi(Request $request): array
+    {
+        return [
+            'name' => $request->nombre,
+            'start_point' => $request->inicio,
+            'end_point' => $request->fin,
+            'estimated_distance' => $request->distancia,
+            'description' => $request->descripcion,
+        ];
+    }
+
+    private function toView(array $route): array
+    {
+        return [
+            'id' => $route['id'] ?? null,
+            'nombre' => $route['name'] ?? '',
+            'inicio' => $route['start_point'] ?? '',
+            'fin' => $route['end_point'] ?? '',
+            'distancia' => $route['estimated_distance'] ?? null,
+            'descripcion' => $route['description'] ?? '',
+        ];
     }
 }

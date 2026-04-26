@@ -10,7 +10,7 @@
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-map-marked-alt me-1"></i> Lista de Rutas</h3>
         <div class="card-tools">
-          <a href="{{ route('operador.rutas.create') }}" class="btn btn-primary btn-sm">
+          <a href="{{ route('operador.rutas.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Nueva Ruta
           </a>
         </div>
@@ -39,16 +39,16 @@
               <td>{{ Str::limit($ruta['descripcion'] ?? '', 40) }}</td>
               <td>
                 <a href="{{ route('operador.rutas.edit', $ruta['id']) }}"
-                   class="btn btn-warning btn-sm">
-                  <i class="fas fa-edit"></i>
+                   class="btn btn-warning btn-action me-1 mb-1">
+                  <i class="fas fa-edit me-1"></i> Editar
                 </a>
                 <form action="{{ route('operador.rutas.destroy', $ruta['id']) }}"
-                      method="POST" class="d-inline"
+                      method="POST" class="d-inline-block mb-1"
                       onsubmit="return confirm('¿Eliminar esta ruta?')">
                   @csrf
                   @method('DELETE')
-                  <button type="submit" class="btn btn-danger btn-sm">
-                    <i class="fas fa-trash"></i>
+                  <button type="submit" class="btn btn-danger btn-action">
+                    <i class="fas fa-trash me-1"></i> Eliminar
                   </button>
                 </form>
               </td>

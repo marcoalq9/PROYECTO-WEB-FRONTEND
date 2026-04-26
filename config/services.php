@@ -22,6 +22,10 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    'vehiculos' => [
+        'url' => rtrim(env('VEHICULOS_API_URL', env('sistemaFlotilla_API_URL', 'http://127.0.0.1:8000')), '/'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

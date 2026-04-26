@@ -102,7 +102,7 @@
               <label class="form-label">Imagen del Vehículo</label>
               @if($vehiculo['imagen'])
                 <div class="mb-2">
-                  <img src="{{ asset('storage/' . $vehiculo['imagen']) }}"
+                  <img src="{{ $vehiculo['imagen'] }}"
                        alt="Imagen actual" style="max-height:150px; border-radius:8px;">
                   <p class="text-muted small mt-1">Imagen actual</p>
                 </div>

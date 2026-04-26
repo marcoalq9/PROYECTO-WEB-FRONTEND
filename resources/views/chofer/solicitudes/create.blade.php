@@ -31,16 +31,16 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">Fecha y Hora de Inicio <span class="text-danger">*</span></label>
-              <input type="datetime-local" name="fecha_inicio"
-                     class="form-control @error('fecha_inicio') is-invalid @enderror"
-                     value="{{ old('fecha_inicio') }}">
+              <input type="text" name="fecha_inicio"
+                     class="form-control js-datetime @error('fecha_inicio') is-invalid @enderror"
+                     value="{{ old('fecha_inicio', $fecha_inicio ?? '') }}">
               @error('fecha_inicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label">Fecha y Hora de Fin <span class="text-danger">*</span></label>
-              <input type="datetime-local" name="fecha_fin"
-                     class="form-control @error('fecha_fin') is-invalid @enderror"
-                     value="{{ old('fecha_fin') }}">
+              <input type="text" name="fecha_fin"
+                     class="form-control js-datetime @error('fecha_fin') is-invalid @enderror"
+                     value="{{ old('fecha_fin', $fecha_fin ?? '') }}">
               @error('fecha_fin')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
           </div>

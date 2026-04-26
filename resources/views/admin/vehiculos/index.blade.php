@@ -10,7 +10,7 @@
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-car me-1"></i> Lista de Vehículos</h3>
         <div class="card-tools">
-          <a href="{{ route('admin.vehiculos.create') }}" class="btn btn-primary btn-sm">
+          <a href="{{ route('admin.vehiculos.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Nuevo Vehículo
           </a>
         </div>
@@ -31,13 +31,13 @@
             </select>
           </div>
           <div class="col-md-2">
-            <button type="submit" class="btn btn-secondary btn-sm w-100">
+            <button type="submit" class="btn btn-secondary w-100">
               <i class="fas fa-filter me-1"></i> Filtrar
             </button>
           </div>
           @if(request('estado'))
           <div class="col-md-2">
-            <a href="{{ route('admin.vehiculos.index') }}" class="btn btn-outline-secondary btn-sm w-100">
+            <a href="{{ route('admin.vehiculos.index') }}" class="btn btn-outline-secondary w-100">
               <i class="fas fa-times me-1"></i> Limpiar
             </a>
           </div>
@@ -65,7 +65,7 @@
             <tr>
               <td>
                 @if($vehiculo['imagen'])
-                  <img src="{{ asset('storage/' . $vehiculo['imagen']) }}"
+                  <img src="{{ $vehiculo['imagen'] }}"
                        alt="Vehículo" width="60" height="40"
                        style="object-fit:cover; border-radius:4px;">
                 @else
@@ -88,25 +88,38 @@
                     'Asignado'         => 'info',
                     'Mantenimiento'    => 'warning',
                     'Fuera de servicio'=> 'danger',
+                    'Inactivo'         => 'secondary',
                     default            => 'secondary',
                   };
                 @endphp
                 <span class="badge bg-{{ $badgeColor }}">{{ $vehiculo['estado'] }}</span>
               </td>
               <td>
+                @if($vehiculo['estado'] === 'Inactivo')
+                  <form action="{{ route('admin.vehiculos.restore', $vehiculo['id']) }}"
+                        method="POST" class="d-inline-block mb-1"
+                        onsubmit="return confirm('¿Deseas activar este vehículo?')">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn btn-success btn-action">
+                      <i class="fas fa-car-side me-1"></i> Activar
+                    </button>
+                  </form>
+                @else
                 <a href="{{ route('admin.vehiculos.edit', $vehiculo['id']) }}"
-                   class="btn btn-warning btn-sm">
-                  <i class="fas fa-edit"></i>
+                   class="btn btn-warning btn-action me-1 mb-1">
+                  <i class="fas fa-edit me-1"></i> Editar
                 </a>
                 <form action="{{ route('admin.vehiculos.destroy', $vehiculo['id']) }}"
-                      method="POST" class="d-inline"
+                      method="POST" class="d-inline-block mb-1"
                       onsubmit="return confirm('¿Deseas eliminar este vehículo?')">
                   @csrf
                   @method('DELETE')
-                  <button type="submit" class="btn btn-danger btn-sm">
-                    <i class="fas fa-trash"></i>
+                  <button type="submit" class="btn btn-danger btn-action">
+                    <i class="fas fa-trash me-1"></i> Eliminar
                   </button>
                 </form>
+                @endif
               </td>
             </tr>
             @empty

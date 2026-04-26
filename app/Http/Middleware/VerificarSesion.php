@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerificarSesion
 {
-    public function handle(Request $request, Closure $next, string $rol = null): Response
+    public function handle(Request $request, Closure $next, ?string $rol = null): Response
     {
         // Si no hay sesión activa, redirige al login
         if (!session('user_role')) {

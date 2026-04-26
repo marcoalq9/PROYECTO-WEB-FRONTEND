@@ -45,20 +45,19 @@
 
           <div class="mb-3">
             <label class="form-label">Fecha de Inicio <span class="text-danger">*</span></label>
-            <input type="date" name="fecha_inicio"
-                   class="form-control @error('fecha_inicio') is-invalid @enderror"
+            <input type="text" name="fecha_inicio"
+                   class="form-control js-date @error('fecha_inicio') is-invalid @enderror"
                    value="{{ old('fecha_inicio', $mantenimiento['fecha_inicio']) }}">
             @error('fecha_inicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
-          @if($mantenimiento['estado'] === 'Cerrado')
           <div class="mb-3">
-            <label class="form-label">Fecha de Cierre</label>
-            <input type="date" name="fecha_cierre"
-                   class="form-control"
+            <label class="form-label">Fecha de Finalizacion <small class="text-muted">(opcional)</small></label>
+            <input type="text" name="fecha_cierre"
+                   class="form-control js-date @error('fecha_cierre') is-invalid @enderror"
                    value="{{ old('fecha_cierre', $mantenimiento['fecha_cierre']) }}">
+            @error('fecha_cierre')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
-          @endif
 
           <div class="mb-3">
             <label class="form-label">Descripción <span class="text-danger">*</span></label>

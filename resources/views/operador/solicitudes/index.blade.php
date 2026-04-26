@@ -10,7 +10,7 @@
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-clipboard-list me-1"></i> Solicitudes</h3>
         <div class="card-tools">
-          <a href="{{ route('operador.asignacion-directa.create') }}" class="btn btn-success btn-sm">
+          <a href="{{ route('operador.asignacion-directa.create') }}" class="btn btn-success">
             <i class="fas fa-hand-pointer me-1"></i> Asignación Directa
           </a>
         </div>
@@ -51,25 +51,21 @@
                 <span class="badge bg-{{ $color }}">{{ $solicitud['estado'] }}</span>
               </td>
               <td>
-                <a href="{{ route('operador.solicitudes.show', $solicitud['id']) }}"
-                   class="btn btn-info btn-sm">
-                  <i class="fas fa-eye"></i>
-                </a>
                 @if($solicitud['estado'] === 'Pendiente')
                   <form action="{{ route('operador.solicitudes.aprobar', $solicitud['id']) }}"
-                        method="POST" class="d-inline"
+                        method="POST" class="d-inline-block me-1 mb-1"
                         onsubmit="return confirm('¿Aprobar esta solicitud?')">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="btn btn-success btn-sm">
-                      <i class="fas fa-check"></i>
+                    <button type="submit" class="btn btn-success btn-action">
+                      <i class="fas fa-check me-1"></i> Aprobar
                     </button>
                   </form>
-                  <button type="button" class="btn btn-danger btn-sm"
+                  <button type="button" class="btn btn-danger btn-action mb-1"
                           data-bs-toggle="modal"
                           data-bs-target="#modalRechazar"
                           data-id="{{ $solicitud['id'] }}">
-                    <i class="fas fa-times"></i>
+                    <i class="fas fa-times me-1"></i> Rechazar
                   </button>
                 @endif
               </td>
