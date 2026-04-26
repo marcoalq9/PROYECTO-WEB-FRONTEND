@@ -3,20 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\ApiService;
 
 class AuthController extends Controller
 {
-    // Muestra el formulario de login
+    private ApiService $api;
+
+    public function __construct()
+    {
+        $this->api = new ApiService();
+    }
+
     public function showLogin()
     {
-        // Si ya hay sesión activa, redirige según el rol
         if (session('user_role')) {
             return $this->redirectByRole(session('user_role'));
         }
         return view('auth.login');
     }
 
-    // Procesa el formulario de login
     public function login(Request $request)
     {
         $request->validate([
@@ -24,37 +29,37 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Aquí consumiremos el API cuando el backend esté listo
-        // Por ahora simulamos con usuarios de prueba
-        $usuarios = [
-            ['email' => 'admin@flotilla.com',    'password' => '123456', 'role' => 'admin',    'name' => 'Administrador'],
-            ['email' => 'operador@flotilla.com', 'password' => '123456', 'role' => 'operador', 'name' => 'Operador'],
-            ['email' => 'chofer@flotilla.com',   'password' => '123456', 'role' => 'chofer',   'name' => 'Chofer'],
-        ];
+        $response = $this->api->postPublic('login', [
+            'email'    => $request->email,
+            'password' => $request->password,
+        ]);
 
-        foreach ($usuarios as $usuario) {
-            if ($usuario['email'] === $request->email && $usuario['password'] === $request->password) {
-                session([
-                    'user_id'   => 1,
-                    'user_name' => $usuario['name'],
-                    'user_email'=> $usuario['email'],
-                    'user_role' => $usuario['role'],
-                ]);
-                return $this->redirectByRole($usuario['role']);
-            }
+        if (isset($response['access_token'])) {
+            $user = $response['user'];
+            $role = strtolower($user['role']['role_name']);
+
+            session([
+                'api_token'  => $response['access_token'],
+                'user_id'    => $user['id'],
+                'user_name'  => $user['name'],
+                'user_email' => $user['email'],
+                'user_role'  => $role,
+            ]);
+
+            return $this->redirectByRole($role);
         }
 
-        return back()->with('error', 'Credenciales incorrectas. Intenta de nuevo.');
+        return back()->with('error', $response['message'] ?? 'Credenciales incorrectas.');
     }
 
-    // Cierra la sesión
     public function logout()
     {
+        $this->api->post('logout');
         session()->flush();
-        return redirect()->route('login')->with('success', 'Sesión cerrada correctamente.');
+        return redirect()->route('login')
+            ->with('success', 'Sesión cerrada correctamente.');
     }
 
-    // Redirige según el rol del usuario
     private function redirectByRole($role)
     {
         return match($role) {
